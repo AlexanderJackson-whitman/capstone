@@ -1,6 +1,8 @@
 import csv, os
 
-file_path = '/Users/danieldang/code/armstrong/src/data_exp_63315-v4_task-rrep.csv'
+
+file_path = '/Users/Kimokeo Bowden Jr/Desktop/capstone/armstrong/src/data_exp_63315-v4_task-rrep.csv'
+# file_path = '/Users/danieldang/code/armstrong/src/data_exp_63315-v4_task-rrep.csv'
 
 def getVariablesFromCSV(file_path):
     variables = {}
@@ -10,10 +12,12 @@ def getVariablesFromCSV(file_path):
         reader = csv.reader(f, dialect)
         header = next(reader)
         startRow, endRow = getStartAndFinishRowsOfFirstID(reader, header)
+        conditions = getConditions(reader, header, endRow)
+        print(conditions)
         # print(f'startRow: {startRow} and endRow: {endRow}')
-        stimuli = getStimuli(reader, header, startRow, endRow)
+        # stimuli = getStimuli(reader, header, startRow, endRow)
         # print(f'stimuli: {stimuli}')
-        printValAtStartRow(reader, header, startRow)
+        # printValAtStartRow(reader, header, startRow)
         # nTrials = getTrialNumber(reader, header, endRow)
         # nTrialsPerStim = getNTrialsPerStim(nTrials, stimuli)
 
