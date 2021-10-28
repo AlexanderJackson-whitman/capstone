@@ -110,4 +110,3 @@ def printValAtStartRow(reader, header, startRow):
 getVariablesFromCSV(file_path)
 
 
-

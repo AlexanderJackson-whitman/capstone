@@ -8,19 +8,15 @@ file_path = '/Users/Kimokeo Bowden Jr/Desktop/capstone/armstrong/src/data_exp_63
 def getVariablesFromCSV(file_path):
     variables = {}
     df = pd.read_csv(file_path)
-    # with open(file_path, "r") as f:
-    #     dialect = csv.Sniffer().sniff(f.read(10240))
-    #     f.seek(0)
-    #     reader = csv.reader(f, dialect)
-    #     header = next(reader)
     startRow, endRow = getStartAndFinishRowsOfFirstID(df)
     print(getConditions(df, startRow, endRow))
-    #     print(f'startRow: {startRow} and endRow: {endRow}')
-    #     stimuli = getStimuli(reader, header, startRow, endRow)
-    #     print(f'stimuli: {stimuli}')
-    #     printValAtStartRow(reader, header, startRow)
-    #     nTrials = getTrialNumber(reader, header, endRow)
-    #     nTrialsPerStim = getNTrialsPerStim(nTrials, stimuli)
+    print(f'startRow: {startRow} and endRow: {endRow}')
+    stimuli = getStimuli(df, startRow, endRow)
+    print(f'stimuli: {stimuli}')
+    printValAtStartRow(df, startRow)
+    nTrials = getTrialNumber(df, endRow)
+    nTrialsPerStim = getNTrialsPerStim(nTrials, stimuli)
+    print(f'nTrials : {nTrials} \n nTrialsPerStim : {nTrialsPerStim}')
 
 def getStartAndFinishRowsOfFirstID(df):
     startRow = None
@@ -45,6 +41,66 @@ def getConditions(df, startRow, endRow):
         if condition not in conditions:
             conditions.append(condition)
     return conditions
+
+def getNTrialsPerStim(nTrials, stimuli):
+    randomStimulus = list(stimuli.keys())[0]
+    numStimuli = len(stimuli[randomStimulus])
+    return nTrials // numStimuli
+
+def getTrialNumber(df, endRow):
+    responseCount = 0
+    for i, line in df.iterrows():
+        if i == endRow:
+            break
+        if line['Response'] == '+':
+            responseCount += 1
+    return responseCount - 1
+
+def printValAtStartRow(df, startRow):
+    print(f'startRow in printValAtStartRow: {startRow}')
+    for i, line in df.iterrows():
+        print("i: " , i , ',' , "value: " , line['display'])
+        if i == startRow:
+            print("val at startRow: " + line['display'])
+            break
+
+
+def getStimuli(df, startRow, endRow):
+    conditions = getConditions(df, startRow, endRow)
+    stimuli = {}
+
+    if len(conditions) == 1:
+        onlyCondition = conditions[0]
+        for i, line in df.iterrows():
+            if type(line['left_stim']) is float:
+                continue
+            if i >= startRow and i <= endRow:
+                indexUpToExtension = line['left_stim'].find('.') - 1 
+                value = line['left_stim'][:indexUpToExtension + 1]
+                if onlyCondition not in stimuli:
+                    stimuli[onlyCondition] = [value]
+                else:
+                    if value not in stimuli[onlyCondition]:
+                        stimuli[onlyCondition].append(value)
+    
+    elif len(conditions) > 1:
+        for i, line in df.iterrows():
+            if i >= startRow and i <= endRow:
+                if type(line['left_stim']) is float:
+                    continue
+                indexUpToExtension = line['left_stim'].find('.') - 1            # -1 assuming N is < 10
+                possibleKey = line['left_stim'][:indexUpToExtension]
+                if possibleKey == '': continue
+                value = line['left_stim'][:indexUpToExtension + 1]
+                if possibleKey not in stimuli:
+                    stimuli[possibleKey] = [value]
+                else:
+                    if value not in stimuli[possibleKey]:
+                        stimuli[possibleKey].append(value)
+            elif i > endRow:
+                break
+    
+    return stimuli
 
 
     
