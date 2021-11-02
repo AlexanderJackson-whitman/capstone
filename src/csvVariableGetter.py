@@ -1,7 +1,7 @@
 import csv, os
 
 
-file_path = '/Users/Kimokeo Bowden Jr/Desktop/capstone/armstrong/src/data_exp_63315-v4_task-rrep.csv'
+file_path = 'data_exp_63315-v4_task-rrep.csv'
 # file_path = '/Users/danieldang/code/armstrong/src/data_exp_63315-v4_task-rrep.csv'
 
 def getVariablesFromCSV(file_path):
