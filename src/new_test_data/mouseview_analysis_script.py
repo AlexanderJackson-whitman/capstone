@@ -41,6 +41,7 @@ STIMULI = { \
      "2_NudeWomanNudeMan": ["D1","D2","D3","D4"], \
      "2_ClothedWomanClothedMan": ["C1","C2","C3","C4"] \
      }
+
 STIM_width = 300
 STIM_height = 400
 STIM_ratio = STIM_height/STIM_width
@@ -49,14 +50,18 @@ CONDITIONS = list(STIMULI.keys())
 CONDITIONS.sort()
 #CONDITIONS = ["1_ClothedWomanNudeWoman","1_ClothedManNudeMan","2_NudeWomanNudeMan","2_ClothedWomanClothedMan"]
 
-
+CONDITIONS_2 = { \
+    "Clothed-Nude": ["1_ClothedWomanNudeWoman","1_ClothedManNudeMan"], \
+    "Pref-Nonpref": ["2_NudeWomanNudeMan","2_ClothedWomanClothedMan"] \
+    }
+            
 
 # Areas of interest. This will be a little tricky. It will need to be redefined per condition. 
 # Perhaps I can do figures, variables in a loop, with two conditions per cycle like before,
 # and then just add conditional logic translating affective/neutral to current context
 AOI = ["affective", "neutral", "other"]
 # Number of trials per condition.
-NTRIALS = 20
+NTRIALS = 8
 # Number of trials per stimulus (affective stimuli get repeated).
 NTRIALSPERSTIM = 2
 # Trial duration in milliseconds.
@@ -85,11 +90,11 @@ OUTDIR = os.path.join(DIR, "output")
 if not os.path.isdir(OUTDIR):
     os.mkdir(OUTDIR)
 
-# PLOTTING move this within loop?
-PLOTCOLMAPS = { \
-    "snake":  "Oranges", \
-    "pleasant": "Blues", \
-    }
+# # PLOTTING move this within loop?
+# PLOTCOLMAPS = { \
+#     "snake":  "Oranges", \
+#     "pleasant": "Blues", \
+#     }
 # Font sizes for different elements.
 FONTSIZE = { \
     "title":            32, \
@@ -103,10 +108,10 @@ FONTSIZE = { \
 # Set the y limits for various plots.
 YLIM = {"dwell_p":  [-50, 50]}
 # Set the locations of legends.
-LEGENDLOCS = { \
-    "snake":  "upper right", \
-    "pleasant": "lower right", \
-    }
+# LEGENDLOCS = { \
+#     "snake":  "upper right", \
+#     "pleasant": "lower right", \
+#     }
 
 
 
@@ -125,6 +130,14 @@ if (not os.path.isfile(DWELLPATH)) or OVERWRITE_TMP:
     custom_fields=["condition", "left_stim", "right_stim"], \
     verbose=True)
     
+    #get gendersex data and put in data dict
+    df_gs = pd.read_csv("gendersex.csv")
+    for ppname in data.keys():
+        try:
+            psex = df_gs.loc[df_gs['Participant Private ID'] == int(ppname), 'SEX'].iloc[0]
+            data[ppname]["sex"] = psex
+        except IndexError:
+            data[ppname]["sex"] = "missing"
     #format time-lock time to start of trial (transform to range of 0-10000)
     for ppname in data.keys():
         for i in range(len(data[ppname]["trials"])):
@@ -185,9 +198,8 @@ if (not os.path.isfile(DWELLPATH)) or OVERWRITE_TMP:
             affective_stim = None
             aoi_rect = {"left_stim":None, "right_stim":None}
     
-                        # Reformat zone shape messages to match old format
-                    #Create dict with zone coordinates
-                    
+            # Reformat zone shape messages to match old format
+            # Create dict with zone coordinates
             Zone_rect = {}
             coord_list = ['x','y','w','h']
             if len(data[participant]["trials"][i]["msg"]) >3: # >3 so it won't crash on empty trials without this information in msgs
@@ -252,7 +264,9 @@ if (not os.path.isfile(DWELLPATH)) or OVERWRITE_TMP:
                 elif msg[0] in ["left_stim", "right_stim"]:
                     # Split the extension and the file name.
                     name, ext = os.path.splitext(msg[1])
-                    #this will not be neutral/affective
+                    #arbitrary assignment of stim in pair to affective/neutral
+                    #for 1_ conditions, 1-digit = nude, 2-digit = clothed
+                    #for 2_ conditions, 1-digit = man, 2-digit = woman
                     letter_code = name[0]
                     numeric_code = name[1:]
                     if len(numeric_code)==2:
@@ -292,7 +306,10 @@ if (not os.path.isfile(DWELLPATH)) or OVERWRITE_TMP:
                 stim_count[stimuli["affective"]] = 0
             else:
                 stim_count[stimuli["affective"]] += 1
-            
+            #deals with counts over 4 preentations (>3)
+            if stim_count[stimuli["affective"]] > 1:
+                print("more than 4 presentations",participant)
+                continue
             # Get the indices for the dwell matrix for the current condition
             # and stimulus.
             i_condition = CONDITIONS.index(condition)
@@ -421,6 +438,28 @@ time_bin_centres = bin_edges[:-1] + numpy.diff(bin_edges)/2.0
 # Loop through the conditions.
 for ci, condition in enumerate(CONDITIONS):
     
+    #This next section was previously hard-coded before loops
+    cond_key1 = CONDITIONS[0]
+    cond_key2 = CONDITIONS[1]
+    cond_key3 = CONDITIONS[2]
+    cond_key4 = CONDITIONS[3]
+    
+    # Add a legend.
+    LEGENDLOCS = { \
+    cond_key1: "upper right", \
+    cond_key2: "lower right", \
+    cond_key3: "upper right", \
+    cond_key4: "lower right", \
+    }
+    
+    # PLOTTING move this within loop?
+    PLOTCOLMAPS = { \
+    cond_key1:  "Oranges", \
+    cond_key2: "Blues", \
+    cond_key3:  "Greens", \
+    cond_key4: "Purples", \
+    }
+        
     # Choose the top-row, and the column for this condition.
     ax = axes[0,ci]
     
@@ -480,7 +519,8 @@ for ci, condition in enumerate(CONDITIONS):
         ax.fill_between(time_bin_centres, m[j,:]-ci_95[j,:], \
             m[j,:]+ci_95[j,:], alpha=0.2, color=cmap(norm(j+voffset)))
         
-    # Add a legend.
+    
+    #legens
     if condition in LEGENDLOCS.keys():
         loc = LEGENDLOCS[condition]
     else:
