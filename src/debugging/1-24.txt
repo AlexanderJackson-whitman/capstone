@@ -1,0 +1,76 @@
+print("DATA: \n")
+for participant in data:
+    print(f'{participant}\n')
+    for trial in data[participant]['trials']:
+        pictureNameRight = trial['msg'][0][1]
+        pictureNameLeft = trial['msg'][1][1]
+        print(f'  {pictureNameRight}')
+        print(f'  {pictureNameLeft}')
+
+
+4836562
+
+  neutral7.jpg
+  neutral6.jpg
+
+  female5.jpeg
+  male5.jpeg
+
+  male4.jpeg
+  female4.jpeg
+
+  male2.jpeg
+  female2.jpeg
+
+  female1.jpeg
+  male1.jpeg
+
+  male1.jpeg
+  female1.jpeg
+
+  female2.jpeg
+  male2.jpeg
+
+  female4.jpeg
+  male4.jpeg
+
+  male3.jpeg
+  female3.jpeg
+
+  female3.jpeg
+  male3.jpeg
+
+  male5.jpeg
+  female5.jpeg
+
+BREAK 
+
+  female5.jpeg
+  male5.jpeg
+
+  male4.jpeg
+  female4.jpeg
+
+  male1.jpeg
+  female1.jpeg
+
+  male3.jpeg
+  female3.jpeg
+
+  female4.jpeg
+  male4.jpeg
+
+  female2.jpeg
+  male2.jpeg
+
+  female3.jpeg
+  male3.jpeg
+
+  female1.jpeg
+  male1.jpeg
+
+  male5.jpeg
+  female5.jpeg
+  
+  male2.jpeg
+  female2.jpeg

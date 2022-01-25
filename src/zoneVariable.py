@@ -1,3 +1,6 @@
+# from analysis_script import TRIAL_DURATION
+
+TRIAL_DURATION = 10000
 import gorilla
 
 STIM_width = 480
@@ -17,6 +20,9 @@ def isInPicture(x,y, picInfo):
     isInXbound = x >= picInfo['startX'] and x <= picInfo['endX']
     isInYbound = y >= picInfo['startY'] and y <= picInfo['endY']
     return isInXbound and isInYbound
+
+def checkValidTrial(totalOnLeft, totalOnRight): 
+    return (totalOnLeft + totalOnRight) >= TRIAL_DURATION/4
 
 def calculateDwellTimes(xCoordinates, yCoordinates, times, leftStimPicInfo, rightStimPicInfo):
     numSamples = len(xCoordinates)
@@ -116,62 +122,63 @@ def main():
             x = trial['x']
             y = trial['y']
             time = trial['time']
-            # isValidTrial = checkValidTrial(x,y,time)
-            # if not isValidTrial:
-            #     continue
             totalOnLeft, totalOnRight = calculateDwellTimes(x, y, time, \
                 leftStimPicInfo, rightStimPicInfo)
+            isValidTrial = checkValidTrial(totalOnLeft, totalOnRight) # FIX THIS FROM 1/24 ON 4800876
+            if participant == '4800876':
+                print(f'{participant} valid trial: {isValidTrial}')
+            if not isValidTrial:
+                continue
 
             pictureNameRight = trial['msg'][0][1]
             pictureNameLeft = trial['msg'][1][1]
+
+            if pictureNameRight not in pictureDwellTimes:
+                pictureDwellTimes[pictureNameRight] = {}
+            if participant not in pictureDwellTimes[pictureNameRight]:
+                pictureDwellTimes[pictureNameRight][participant] = \
+                    {'total': 0, 'average': 0, 'raw': []}
+
+            if pictureNameLeft not in pictureDwellTimes:
+                pictureDwellTimes[pictureNameLeft] = {}
+            if participant not in pictureDwellTimes[pictureNameLeft]:
+                pictureDwellTimes[pictureNameLeft][participant] = \
+                    {'total': 0, 'average': 0, 'raw': []}
 
             # add into trial['totalOnLeft'] and trial['totalOnRight]
 
             '''
             pictureDwellTimes dictionary:
             {
-                '321321321': {
-                    'd44.jpg': {
+                'D55.JPG'': {
+                    '23081842183': {
                         'total': 513436334 miliseconds
                         'average': 4321412 miliseconds
                         'raw': [2312515, 21532145, 6433243,67454373, 5434324]
                     },
-                    'd55.jpg': {
+                    '323219821': {
                         'total': 513436334 miliseconds
                         'average': 4321412 miliseconds
                         'raw': [21532145, 6433243,67454373, 5434324]
                         'numDropped': 1
                     },
                 },
-
-                'd55.jpg': ...
             }
             '''
             dwellPicLeft = pictureDwellTimes[pictureNameLeft][participant]
-            if pictureNameLeft not in pictureDwellTimes:
-                dwellPicLeft['total'] = totalOnLeft
-                dwellPicLeft['average'] = totalOnLeft
-                dwellPicLeft['raw'] = [totalOnLeft]
-
-            else:
-                dwellPicLeft['total'] += totalOnLeft
-                dwellPicLeft['average'] = dwellPicLeft['total'] / len(dwellPicLeft['raw'])
-                dwellPicLeft['raw'].append(totalOnLeft)
+            dwellPicLeft['total'] += totalOnLeft
+            dwellPicLeft['raw'].append(totalOnLeft)
+            dwellPicLeft['average'] = dwellPicLeft['total'] / len(dwellPicLeft['raw'])
+            pictureDwellTimes[pictureNameLeft][participant] = dwellPicLeft
 
             dwellPicRight = pictureDwellTimes[pictureNameRight][participant]
-            if pictureNameRight not in pictureDwellTimes:
-                dwellPicRight['total'] = totalOnRight
-                dwellPicRight['average'] = totalOnRight
-                dwellPicRight['raw'] = [totalOnRight]
+            dwellPicRight['total'] += totalOnRight
+            dwellPicRight['raw'].append(totalOnRight)
+            dwellPicRight['average'] = dwellPicRight['total'] / len(dwellPicRight['raw'])
+            pictureDwellTimes[pictureNameRight][participant] = dwellPicRight
 
-            else:
-                dwellPicRight['total'] += totalOnRight
-                dwellPicRight['average'] = dwellPicRight['total'] / len(dwellPicRight['raw'])
-                dwellPicRight['raw'].append(totalOnRight)
+
     print(pictureDwellTimes)
     return pictureDwellTimes
 
 main()
-
-
-
