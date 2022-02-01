@@ -93,7 +93,7 @@ def createAOIRect(participant, data):
             # data[participant]["trials"][0][zone] = i_rect             removed because unnecessary
     return aoi_rect
 
-def main():
+def createDwellTimesDict():
     '''
     data = gorilla reader function
 
@@ -125,10 +125,6 @@ def main():
             totalOnLeft, totalOnRight = calculateDwellTimes(x, y, time, \
                 leftStimPicInfo, rightStimPicInfo)
             isValidTrial = checkValidTrial(totalOnLeft, totalOnRight) # FIX THIS FROM 1/24 ON 4800876
-            if participant == '4800876':
-                print(f'{participant} valid trial: {isValidTrial}')
-            if not isValidTrial:
-                continue
 
             pictureNameRight = trial['msg'][0][1]
             pictureNameLeft = trial['msg'][1][1]
@@ -137,48 +133,32 @@ def main():
                 pictureDwellTimes[pictureNameRight] = {}
             if participant not in pictureDwellTimes[pictureNameRight]:
                 pictureDwellTimes[pictureNameRight][participant] = \
-                    {'total': 0, 'average': 0, 'raw': []}
+                    {'total': 0, 'average': 0, 'raw': [], 'numDropped': 0}
 
             if pictureNameLeft not in pictureDwellTimes:
                 pictureDwellTimes[pictureNameLeft] = {}
             if participant not in pictureDwellTimes[pictureNameLeft]:
                 pictureDwellTimes[pictureNameLeft][participant] = \
-                    {'total': 0, 'average': 0, 'raw': []}
+                    {'total': 0, 'average': 0, 'raw': [], 'numDropped': 0}
 
-            # add into trial['totalOnLeft'] and trial['totalOnRight]
-
-            '''
-            pictureDwellTimes dictionary:
-            {
-                'D55.JPG'': {
-                    '23081842183': {
-                        'total': 513436334 miliseconds
-                        'average': 4321412 miliseconds
-                        'raw': [2312515, 21532145, 6433243,67454373, 5434324]
-                    },
-                    '323219821': {
-                        'total': 513436334 miliseconds
-                        'average': 4321412 miliseconds
-                        'raw': [21532145, 6433243,67454373, 5434324]
-                        'numDropped': 1
-                    },
-                },
-            }
-            '''
             dwellPicLeft = pictureDwellTimes[pictureNameLeft][participant]
+            dwellPicRight = pictureDwellTimes[pictureNameRight][participant]
+
+            if not isValidTrial:
+                dwellPicLeft['numDropped'] += 1
+                dwellPicLeft['raw'].append(('INVALID', pictureNameRight))
+                dwellPicRight['numDropped'] += 1
+                dwellPicRight['raw'].append(('INVALID', pictureNameLeft))
+                continue
+
             dwellPicLeft['total'] += totalOnLeft
-            dwellPicLeft['raw'].append(totalOnLeft)
-            dwellPicLeft['average'] = dwellPicLeft['total'] / len(dwellPicLeft['raw'])
+            dwellPicLeft['raw'].append((totalOnLeft, pictureNameRight))
+            dwellPicLeft['average'] = dwellPicLeft['total'] / len(dwellPicLeft['raw']) - dwellPicLeft['numDropped']
             pictureDwellTimes[pictureNameLeft][participant] = dwellPicLeft
 
-            dwellPicRight = pictureDwellTimes[pictureNameRight][participant]
             dwellPicRight['total'] += totalOnRight
-            dwellPicRight['raw'].append(totalOnRight)
-            dwellPicRight['average'] = dwellPicRight['total'] / len(dwellPicRight['raw'])
+            dwellPicRight['raw'].append((totalOnRight, pictureNameLeft))
+            dwellPicRight['average'] = dwellPicRight['total'] / len(dwellPicRight['raw']) - dwellPicRight['numDropped']
+
             pictureDwellTimes[pictureNameRight][participant] = dwellPicRight
-
-
-    print(pictureDwellTimes)
     return pictureDwellTimes
-
-main()
