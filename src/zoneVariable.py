@@ -1,10 +1,12 @@
-# from analysis_script import TRIAL_DURATION
-
-TRIAL_DURATION = 10000
+import variableGetters 
 import gorilla
 
-STIM_width = 480
-STIM_height = 360
+TRIAL_DURATION = variableGetters.getTrialDuration()
+STIM_width = variableGetters.getStimWidth()
+STIM_height = variableGetters.getStimHeight()
+DATA_FILE = variableGetters.EXPERIMENT_FOLDER + '/' + variableGetters.getCSVFileName()
+TRIAL_DATA_FOLDER = variableGetters.EXPERIMENT_FOLDER + '/' + variableGetters.getTrialDataFolder()
+
 STIM_ratio = STIM_height/STIM_width
 
 def createPicInfoDict(dimensions):
@@ -94,21 +96,7 @@ def createAOIRect(participant, data):
     return aoi_rect
 
 def createDwellTimesDict():
-    '''
-    data = gorilla reader function
-
-    for every participant
-        create leftStimPicInfo
-        create rightStimPicInfo
-        for every trial in the participant
-            call calculateDwellTimes() which runs isInPicture for every x,y,time
-            add output from calculateDwellTimes() as keys in trial 'dwell_left_stim' and 'dwell_right_stim'
-    '''
-
-    DATAFILE = 'data_exp_63315-v4_task-rrep.csv'
-    TRIALDATAFOLDER = 'uploads'
-
-    data = gorilla.read_file(DATAFILE, TRIALDATAFOLDER, \
+    data = gorilla.read_file(DATA_FILE, TRIAL_DATA_FOLDER, \
     custom_fields=["condition", "left_stim", "right_stim"], \
     verbose=True)
 
@@ -124,7 +112,7 @@ def createDwellTimesDict():
             time = trial['time']
             totalOnLeft, totalOnRight = calculateDwellTimes(x, y, time, \
                 leftStimPicInfo, rightStimPicInfo)
-            isValidTrial = checkValidTrial(totalOnLeft, totalOnRight) # FIX THIS FROM 1/24 ON 4800876
+            isValidTrial = checkValidTrial(totalOnLeft, totalOnRight)
 
             pictureNameRight = trial['msg'][0][1]
             pictureNameLeft = trial['msg'][1][1]
@@ -159,6 +147,6 @@ def createDwellTimesDict():
             dwellPicRight['total'] += totalOnRight
             dwellPicRight['raw'].append((totalOnRight, pictureNameLeft))
             dwellPicRight['average'] = dwellPicRight['total'] / len(dwellPicRight['raw']) - dwellPicRight['numDropped']
-
             pictureDwellTimes[pictureNameRight][participant] = dwellPicRight
+            
     return pictureDwellTimes
