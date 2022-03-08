@@ -110,9 +110,14 @@ def createDwellTimesDict():
             x = trial['x']
             y = trial['y']
             time = trial['time']
+
+            
+                
+            
             totalOnLeft, totalOnRight = calculateDwellTimes(x, y, time, \
                 leftStimPicInfo, rightStimPicInfo)
-            isValidTrial = checkValidTrial(totalOnLeft, totalOnRight)
+            # isValidTrial = checkValidTrial(totalOnLeft, totalOnRight)
+            # checkValidTrial removed by request of sWELL team 3/7/22
 
             pictureNameRight = trial['msg'][0][1]
             pictureNameLeft = trial['msg'][1][1]
@@ -131,8 +136,8 @@ def createDwellTimesDict():
 
             dwellPicLeft = pictureDwellTimes[pictureNameLeft][participant]
             dwellPicRight = pictureDwellTimes[pictureNameRight][participant]
-
-            if not isValidTrial:
+            
+            if 'missing_file' in trial:
                 dwellPicLeft['numDropped'] += 1
                 dwellPicLeft['raw'].append(('INVALID', pictureNameRight))
                 dwellPicRight['numDropped'] += 1

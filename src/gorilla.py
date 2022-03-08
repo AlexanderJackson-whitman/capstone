@@ -153,6 +153,7 @@ def read_file(file_path, trial_folder_path, custom_fields=None, \
                         "time":numpy.array([], dtype=numpy.float32), \
                         "x":numpy.array([], dtype=numpy.float32), \
                         "y":numpy.array([], dtype=numpy.float32), \
+                        "missing_file": True,
                         }
                 # Add the custom fields.
                 for field in custom_fields:
