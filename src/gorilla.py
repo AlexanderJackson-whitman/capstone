@@ -163,11 +163,11 @@ def read_file(file_path, trial_folder_path, custom_fields=None, \
                 # something went wrong in the Gorilla file, as the file name
                 # comes from there! Or someone messed with either the OG file
                 # or the trial file names...)
-                if str(participant) != line[iprivate]:
-                    raise Exception("File {} is listed for ".format(fname) + \
-                        "participant {}, ".format(current_participant) + \
-                        "but the file itself reports to be from " + \
-                        "participant {}".format(participant))
+                # if str(participant) != line[iprivate]:
+                #     raise Exception("File {} is listed for ".format(fname) + \
+                #         "participant {}, ".format(current_participant) + \
+                #         "but the file itself reports to be from " + \
+                #         "participant {}".format(participant))
                 
                 # Add the trial to the current participant.
                 data[current_participant]["trials"].append(trial)
